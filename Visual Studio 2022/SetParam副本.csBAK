@@ -1,0 +1,114 @@
+﻿using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+namespace CameraApp
+{
+    // 参数数据模型
+    public partial class SetParam : INotifyPropertyChanged
+    {
+        private float _dp = 1.5f;
+        private int _minDist = 100;
+        private int _param1 = 100;
+        private int _param2 = 10;
+        private int _minRadius = 20;
+        private int _maxRadius = 50;
+        private int _gsParam = 2;
+        private bool _enableDebugLog = false;
+
+        public SetParam()
+        {
+            InitializeComponent();
+            DataContext = this;
+        }
+        public float Dp
+        {
+            get => _dp;
+            set
+            {
+                _dp = value; OnPropertyChanged();
+            }
+        }
+
+        public int MinDist
+        {
+            get => _minDist;
+            set
+            {
+                _minDist = value; OnPropertyChanged();
+            }
+        }
+
+        public int Param1
+        {
+            get => _param1;
+            set
+            {
+                _param1 = value; OnPropertyChanged();
+            }
+        }
+        public int Param2
+        {
+            get => _param2;
+            set
+            {
+                _param2 = value; OnPropertyChanged();
+            }
+        }
+        public int MinRadius
+        {
+            get => _minRadius;
+            set
+            {
+                _minRadius = value; OnPropertyChanged();
+            }
+        }
+        public int MaxRadius
+        {
+            get => _maxRadius;
+            set
+            {
+                _maxRadius = value; OnPropertyChanged();
+            }
+        }
+        public int GSparam
+        {
+            get => _gsParam;
+            set
+            {
+                _gsParam = value; OnPropertyChanged();
+            }
+        }
+        public bool EnableDebugLog
+        {
+            get => _enableDebugLog;
+            set
+            {
+                _enableDebugLog = value; OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        internal new void ShowDialog()
+        {
+            this.Visibility = System.Windows.Visibility.Visible;
+            InitializeComponent();
+        }
+
+        private void BtnCancel_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnOk_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
+    }
+}
+    

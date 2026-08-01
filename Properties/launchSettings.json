@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CameraApp": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

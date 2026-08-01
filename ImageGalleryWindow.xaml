@@ -1,0 +1,43 @@
+<Window x:Class="CameraApp.ImageGalleryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="图像库 - 查询与回放" Height="400" Width="600"
+        Loaded="Window_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 搜索栏 -->
+  
+        
+     
+        <!-- 数据表格 -->
+        <DataGrid Grid.Row="0" x:Name="mediaDataGrid" Margin="10"
+                  AutoGenerateColumns="False" CanUserAddRows="False"
+                  SelectionMode="Single" IsReadOnly="True" 
+                  GridLinesVisibility="Horizontal">
+
+            <!-- MouseDoubleClick="DataGrid_MouseDoubleClick" -->
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="患者" Binding="{Binding PName}" Width="*"/>
+                <DataGridTextColumn Header="年龄" Binding="{Binding PAge}" Width="100"/>
+                <DataGridTextColumn Header="性别" Binding="{Binding PSex}" Width="100"/>
+                <DataGridTemplateColumn Header="操作" Width="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Content="查看" Width="60" Margin="2"
+                                        Tag="{Binding FileDir}" Click="ViewButton_Click"/>
+                                <Button Content="删除" Width="60" Margin="2"
+                                        Tag="{Binding FileDir}" Click="DeleteButton_Click"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

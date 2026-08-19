@@ -28,9 +28,9 @@
                 </Image>
             </ScrollViewer> 和移动的Mouse事件 -->
             <Image x:Name="PicImage" Stretch="Uniform" Margin="10" Focusable="True" 
-                   MouseRightButtonDown="PicImage_MouseRightButtonDown"
                    MouseMove="PicImage_MouseMove"
                    MouseLeftButtonDown="Img_MouseDown"
+                   MouseRightButtonDown="Img_MouseRightDown"
                    MouseLeftButtonUp="Img_MouseUp"/>
         </Canvas>
         <ListBox x:Name="ListPic" Grid.Row="0" Grid.Column="1" Margin="10" PreviewMouseDoubleClick="ListPic_PreviewMouseDoubleClick" />
@@ -43,6 +43,7 @@
             -->
                 <Button x:Name="BtnParameter" Content="设置参数" Margin="5" Click="BtnSetPara_Click"/>
                 <Button x:Name="BtnAnalyze" Content="分析瞳孔反射" Margin="5" Click="BtnAnalyze_Click"/>
+                <Button x:Name="BtnDebugSingle" Content="单帧调试" Margin="5" Click="BtnDebugSingle_Click"/>
              </StackPanel>
         </Border>
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="10" BorderBrush="Gray" BorderThickness="1">

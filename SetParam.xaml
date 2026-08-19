@@ -60,20 +60,20 @@
             <Slider Value="{Binding MaxB}" Minimum="50" Maximum="200" TickFrequency="5" IsSnapToTickEnabled="True" Width="180"/>
             <TextBlock Text="{Binding MaxB}" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="Bold"/>
         </StackPanel>
-        <Label Grid.Row="6" Grid.Column="0" Content="蓝红差" VerticalAlignment="Center"/>
+        <Label Grid.Row="6" Grid.Column="0" Content="色度" VerticalAlignment="Center"/>
         <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
-            <Slider Value="{Binding BRless}" Minimum="0" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" Width="180"/>
-            <TextBlock Text="{Binding BRless}" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="Bold"/>
+            <Slider Value="{Binding Hess}" Minimum="0" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" Width="180"/>
+            <TextBlock Text="{Binding Hess}" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="Bold"/>
         </StackPanel>
-        <Label Grid.Row="7" Grid.Column="0" Content="红增加" VerticalAlignment="Center"/>
-        <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
-            <Slider Value="{Binding Rinc}" Minimum="5" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True" Width="180"/>
-            <TextBlock Text="{Binding Rinc}" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="Bold"/>
+        <Label Grid.Row="7" Grid.Column="0" Content="亮度" VerticalAlignment="Center"/>
+        <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal" Margin="1">
+            <Slider Value="{Binding Brightness}" Minimum="50" Maximum="200" TickFrequency="0.5" IsSnapToTickEnabled="True" Width="180"/>
+            <TextBlock Text="{Binding Brightness}" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="Bold"/>
         </StackPanel>
-        <Label Grid.Row="8" Grid.Column="0" Content="圆半径" VerticalAlignment="Center"/>
-        <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
-            <Slider Value="{Binding CirL}" Minimum="10" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True" Width="180"/>
-            <TextBlock Text="{Binding CirL}" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="Bold"/>
+        <Label Grid.Row="8" Grid.Column="0" Content="饱和度" VerticalAlignment="Center"/>
+        <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" Margin="1">
+            <Slider Value="{Binding Saturation}" Minimum="30" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" Width="180"/>
+            <TextBlock Text="{Binding Saturation}" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="Bold"/>
         </StackPanel>
 
         <!-- 底部按钮 -->

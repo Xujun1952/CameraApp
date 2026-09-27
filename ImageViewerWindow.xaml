@@ -33,6 +33,7 @@
                    MouseRightButtonDown="Img_MouseRightDown"
                    MouseLeftButtonUp="Img_MouseUp"/>
         </Canvas>
+        <Canvas x:Name="CanvasOverlay" Grid.Row="0" Grid.Column="0" Margin="10" IsHitTestVisible="False"/>
         <ListBox x:Name="ListPic" Grid.Row="0" Grid.Column="1" Margin="10" PreviewMouseDoubleClick="ListPic_PreviewMouseDoubleClick" />
         <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="10" BorderBrush="Gray" BorderThickness="1">
             <StackPanel Orientation="Horizontal">

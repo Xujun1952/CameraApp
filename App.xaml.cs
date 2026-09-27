@@ -14,6 +14,7 @@ public partial class App : Application
         // 配置 FFmpeg 路径
         GlobalFFOptions.Configure(options =>
             options.BinaryFolder = @"C:\ProgramData\Microsoft");
+
     }
 }
 

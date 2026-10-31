@@ -19,7 +19,6 @@ using System.Windows.Shapes;
 using Microsoft.VisualBasic;
 
 using OpenCvSharp;
-using OpenCvSharp.Extensions;
 using OpenCvSharp.WpfExtensions;
 
 using static OpenCvSharp.LineIterator;

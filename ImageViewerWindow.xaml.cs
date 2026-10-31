@@ -1,19 +1,16 @@
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection.Metadata;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+
+using static CameraApp.ImageViewerWindow.CaliperCircleDetector;
 
 using Point = OpenCvSharp.Point;
 using Window = System.Windows.Window;
@@ -203,22 +200,58 @@ public partial class ImageViewerWindow : Window
         DrawingVisual visual = new DrawingVisual();
         using (DrawingContext dc = visual.RenderOpen())
         {
-            dc.DrawLine(bluePen, new System.Windows.Point(20, 20), new System.Windows.Point(20, 400));
-            dc.DrawLine(bluePen, new System.Windows.Point(20, 400), new System.Windows.Point(600, 400));
-            System.Windows.Point p1 = new System.Windows.Point(20, 400);
+            dc.DrawLine(bluePen, new System.Windows.Point(20, 20), new System.Windows.Point(20, 420));
+            dc.DrawLine(bluePen, new System.Windows.Point(20, 420), new System.Windows.Point(620, 420));
+            bluePen = new Pen(Brushes.AliceBlue, 1);
+            for (int i = 1; i < 11; i++)
+            {
+                dc.DrawLine(bluePen, new System.Windows.Point(20 + i * 60, 410), new System.Windows.Point(20 + i * 60, 420));
+                dc.DrawLine(bluePen, new System.Windows.Point(20, 420 - i * 40), new System.Windows.Point(30, 420 - i * 40));
+            }
+            System.Windows.Point p1 = new System.Windows.Point(20, 20);
             System.Windows.Point p2 = new System.Windows.Point(300, 300);
             int x0 = 20;
             int pipul = 0;
+            int pipul1 = 0;
+            float pipul0 = 0;
+            bool zeroSele = true;
             int k0 = int.Parse(System.IO.Path.GetFileName(fs[30]).Substring(1));
             for (int i = 30; i < 90; i++)
             {
                 Debug.WriteLine($"Analyzing image: {PicName[i]}");
                 ViewPic(i);
-                pipul = DetectPupil(originalMat);
+
+				var center = new Point2d(160.0, 120.0);
+				var result = CaliperCircleDetector.Detect(
+					originalMat,
+					center: center,
+					minR: 40,
+					maxR: 80,
+					lineCount: 120,
+					halfWidth: 3,
+					gradThresh: 15.0,
+					outlierRatio: 3.0);
+
+				//Debug.WriteLine($"圆心: ({result.Center.X:F2}, {result.Center.Y:F2})");
+				//Debug.WriteLine($"半径: {result.Radius:F2}");
+				//Debug.WriteLine($"有效扫描线: {result.ValidLines}");
+
+
+				//pipul = DetectPupil(originalMat);
+				pipul = (int)result.Radius;
+				if (zeroSele && pipul == 0) continue;
+                else if(pipul0 == 0)
+                {
+                    zeroSele = false;
+                    pipul0 = pipul;
+                    continue;
+                }
+                else if (pipul == 0) pipul= pipul1;
+                else if(pipul > pipul0) pipul = pipul1;
                 int k = int.Parse(System.IO.Path.GetFileName(fs[i]).Substring(1));
-                Debug.WriteLine($"Extracted value k={k} from filename {fs[i]}");
-                p2 = new System.Windows.Point((k - k0)/10, 400 - pipul * 4);
-                x0+= 5;
+                Debug.WriteLine($"Extracted value k={k} r={pipul}");
+                p2 = new System.Windows.Point((k - k0) / 5.55f + 20, 420 - pipul / pipul0 * 400);
+                pipul1 = pipul;
                 dc.DrawLine(redPen, p1, p2);
                 p1 = p2;
             }
@@ -345,13 +378,362 @@ public partial class ImageViewerWindow : Window
 
     private void Analysis()
     {
-        DetectPupil(originalMat);
-    }
+		DetectPupil(originalMat);
+		
+		//using var display = originalMat.Clone();
+		//CaliperCircleDetector.DrawResult(display, result);
+		// 假设圆心已通过霍夫粗检或其他方法获得
+		//var center = new Point2d(160.0, 120.0);
 
-    // ====== 瞳孔检测核心逻辑 ======
-    private Point _pupilCenter;
+		/*var result = CaliperCircleDetector.Detect(
+			originalMat,
+			center: center,
+			minR: 40,
+			maxR: 80,
+			lineCount: 120,
+			halfWidth: 3,
+			gradThresh: 15.0,
+			outlierRatio: 3.0);
+		
+		Debug.WriteLine($"圆心: ({result.Center.X:F2}, {result.Center.Y:F2})");
+		Debug.WriteLine($"半径: {result.Radius:F2}");
+		Debug.WriteLine($"有效扫描线: {result.ValidLines}");
+		drawEllipse((int)result.Center.X * 2, (int)result.Center.Y * 2, (int)result.Radius, System.Windows.Media.Brushes.Red);
+		*/		
+		
+
+		//Cv2.ImShow("Caliper", display);
+		//Cv2.WaitKey();
+	}
+	public static void DrawResult(Mat dst, CaliperResult result)
+	{
+		Scalar lineColor = new Scalar(0, 200, 255);
+		Scalar circleColor = new Scalar(0, 255, 0);
+
+		var center = new Point((int)Math.Round(result.Center.X),
+							   (int)Math.Round(result.Center.Y));
+
+		// 绘制拟合圆
+		Cv2.Circle(dst, center, (int)Math.Round(result.Radius), circleColor, 2);
+
+		// 绘制圆心
+		Cv2.Circle(dst, center, 2, new Scalar(0, 0, 255), -1);
+
+		// 绘制有效边缘点
+		foreach (var p in result.EdgePoints)
+		{
+			var pt = new Point((int)Math.Round(p.X), (int)Math.Round(p.Y));
+			Cv2.Circle(dst, pt, 1, lineColor, 1);
+		}
+	}
+	// ====== 瞳孔检测核心逻辑 ======
+	private Point _pupilCenter;
     private Point _irisCenter;
     private bool selected = true;
+
+
+	//卡尺扫描法圆检测器
+	public class CaliperCircleDetector
+	{
+		public class CaliperResult
+		{
+			public Point2d Center { get; set; }
+			public double Radius { get; set; }
+			public Point2d[] EdgePoints { get; set; }
+			public int ValidLines { get; set; }
+		}
+
+		/// <summary>
+		/// 卡尺扫描法：已知圆心，检测圆半径
+		/// </summary>
+		/// <param name="src">输入图像（灰度或彩色均可）</param>
+		/// <param name="center">已知圆心</param>
+		/// <param name="minR">最小半径搜索范围</param>
+		/// <param name="maxR">最大半径搜索范围</param>
+		/// <param name="lineCount">扫描线数量，越多越精细，建议 60~180</param>
+		/// <param name="halfWidth">卡尺半宽，用于平滑梯度，建议 2~5</param>
+		/// <param name="gradThresh">梯度阈值，低于此值认为该方向无有效边缘</param>
+		/// <param name="outlierRatio">剔除外离群点的标准差倍数，建议 2.5~3.0</param>
+		public static CaliperResult Detect(
+			Mat src,
+			Point2d center,
+			double minR,
+			double maxR,
+			int lineCount = 20,
+			int halfWidth = 3,
+			double gradThresh = 15.0,
+			double outlierRatio = 3.0)
+		{
+			// 确保灰度图
+			Mat gray = src.Channels() == 1 ? src : new Mat();
+			if (src.Channels() != 1)
+				Cv2.CvtColor(src, gray, ColorConversionCodes.BGR2GRAY);
+
+			int rows = gray.Rows;
+			int cols = gray.Cols;
+
+			var radii = new List<double>();
+			var edgePoints = new List<Point2d>();
+
+			double angleStep = Math.PI * 2.0 / lineCount;
+
+			for (int i = 0; i < lineCount; i++)
+			{
+				double angle = i * angleStep;
+				double cos = Math.Cos(angle);
+				double sin = Math.Sin(angle);
+
+				// 在 [minR, maxR] 范围内沿射线采样
+				int sampleCount = (int)(maxR - minR) + 1;
+				if (sampleCount < 3) continue;
+
+				var samples = new double[sampleCount];
+				var sampleX = new double[sampleCount];
+				var sampleY = new double[sampleCount];
+
+				bool anyValid = false;
+
+				for (int j = 0; j < sampleCount; j++)
+				{
+					double r = minR + j;
+					double px = center.X + r * cos;
+					double py = center.Y + r * sin;
+
+					// 双线性插值取灰度
+					double v = BilinearSample(gray, px, py, rows, cols);
+					if (double.IsNaN(v))
+					{
+						samples[j] = double.NaN;
+						continue;
+					}
+
+					anyValid = true;
+					samples[j] = v;
+					sampleX[j] = px;
+					sampleY[j] = py;
+				}
+
+				if (!anyValid) continue;
+
+				// 计算梯度：对每个点取 [-halfWidth, +halfWidth] 邻域内的灰度差分
+				int bestIdx = -1;
+				double bestGrad = 0;
+
+				for (int j = halfWidth; j < sampleCount - halfWidth; j++)
+				{
+					if (double.IsNaN(samples[j - halfWidth]) ||
+						double.IsNaN(samples[j + halfWidth]))
+						continue;
+
+					double grad = samples[j + halfWidth] - samples[j - halfWidth];
+					double absGrad = Math.Abs(grad);
+
+					if (absGrad > bestGrad)
+					{
+						bestGrad = absGrad;
+						bestIdx = j;
+					}
+				}
+
+				if (bestIdx < 0 || bestGrad < gradThresh)
+					continue;
+
+				double rFound = minR + bestIdx;
+				double ex = sampleX[bestIdx];
+				double ey = sampleY[bestIdx];
+
+				radii.Add(rFound);
+				edgePoints.Add(new Point2d(ex, ey));
+			}
+
+			if (radii.Count < 6)
+			{
+				return new CaliperResult
+				{
+					Center = center,
+					Radius = (minR + maxR) / 2.0,
+					EdgePoints = Array.Empty<Point2d>(),
+					ValidLines = 0
+				};
+			}
+
+			// 剔除离群点：用中值 + MAD 稳健估计
+			double medianR = Median(radii);
+			var deviations = radii.Select(r => Math.Abs(r - medianR)).ToList();		
+			double mad = Median(deviations) * 1.4826; // 近似标准差
+			double threshold =  Math.Max(mad, 1.0) / 5;
+
+			var inlierRadii = new List<double>();
+			var inlierPoints = new List<Point2d>();
+
+			for (int i = 0; i < radii.Count; i++)
+			{
+				if (Math.Abs(radii[i] - medianR) <= threshold)
+				{
+					inlierRadii.Add(radii[i]);
+					inlierPoints.Add(edgePoints[i]);
+				}
+			}
+
+			if (inlierRadii.Count < 6)
+			{
+				return new CaliperResult
+				{
+					Center = center,
+					Radius = medianR,
+					EdgePoints = edgePoints.ToArray(),
+					ValidLines = radii.Count
+				};
+			}
+
+			// 最小二乘精化：同时优化圆心和半径
+			FitCircleLeastSquares(inlierPoints.ToArray(), out Point2d refinedCenter, out double refinedRadius);
+
+			return new CaliperResult
+			{
+				Center = refinedCenter,
+				Radius = refinedRadius,
+				EdgePoints = inlierPoints.ToArray(),
+				ValidLines = inlierRadii.Count
+			};
+		}
+
+		/// <summary>
+		/// 双线性插值采样灰度
+		/// </summary>
+		private static double BilinearSample(Mat gray, double x, double y, int rows, int cols)
+		{
+			int x0 = (int)Math.Floor(x);
+			int y0 = (int)Math.Floor(y);
+			int x1 = x0 + 1;
+			int y1 = y0 + 1;
+
+			if (x0 < 0 || y0 < 0 || x1 >= cols || y1 >= rows)
+				return double.NaN;
+
+			double fx = x - x0;
+			double fy = y - y0;
+
+			double v00 = gray.At<byte>(y0, x0);
+			double v10 = gray.At<byte>(y0, x1);
+			double v01 = gray.At<byte>(y1, x0);
+			double v11 = gray.At<byte>(y1, x1);
+
+			return (1 - fx) * (1 - fy) * v00 +
+				   fx * (1 - fy) * v10 +
+				   (1 - fx) * fy * v01 +
+				   fx * fy * v11;
+		}
+
+		private static double Median(List<double> values)
+		{
+			var sorted = values.OrderBy(v => v).ToList();
+			int n = sorted.Count;
+			if (n == 0) return 0;
+			return n % 2 == 0
+				? (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
+				: sorted[n / 2];
+		}
+
+		/// <summary>
+		/// 最小二乘圆拟合（Kasa 方法）
+		/// </summary>
+		private static void FitCircleLeastSquares(
+			Point2d[] points,
+			out Point2d center,
+			out double radius)
+		{
+			int n = points.Length;
+			double sumX = 0, sumY = 0;
+			double sumX2 = 0, sumY2 = 0, sumXY = 0;
+			double sumX3 = 0, sumY3 = 0;
+			double sumX2Y = 0, sumXY2 = 0;
+
+			foreach (var p in points)
+			{
+				double x = p.X;
+				double y = p.Y;
+				double x2 = x * x;
+				double y2 = y * y;
+
+				sumX += x;
+				sumY += y;
+				sumX2 += x2;
+				sumY2 += y2;
+				sumXY += x * y;
+				sumX3 += x2 * x;
+				sumY3 += y2 * y;
+				sumX2Y += x2 * y;
+				sumXY2 += x * y2;
+			}
+
+			double A = n * sumX2 - sumX * sumX;
+			double B = n * sumXY - sumX * sumY;
+			double C = n * sumY2 - sumY * sumY;
+			double D = 0.5 * (n * sumX3 + n * sumXY2 - sumX * sumX2 - sumX * sumY2);
+			double E = 0.5 * (n * sumX2Y + n * sumY3 - sumY * sumX2 - sumY * sumY2);
+			double sumR;
+			double det = A * C - B * B;
+			if (Math.Abs(det) < 1e-10)
+			{
+				// 退化情况，回退到简单平均
+				center = new Point2d(sumX / n, sumY / n);
+				sumR = 0;
+				foreach (var p in points)
+				{
+					double dx = p.X - center.X;
+					double dy = p.Y - center.Y;
+					sumR += Math.Sqrt(dx * dx + dy * dy);
+				}
+				radius = sumR / n;
+				return;
+			}
+
+			double cx = (D * C - B * E) / det;
+			double cy = (A * E - B * D) / det;
+			sumR = 0;
+			foreach (var p in points)
+			{
+				double dx = p.X - cx;
+				double dy = p.Y - cy;
+				sumR += Math.Sqrt(dx * dx + dy * dy);
+			}
+
+			center = new Point2d(cx, cy);
+			radius = sumR / n;
+
+
+			
+		}
+		
+		/// <summary>
+		/// 在图像上绘制卡尺扫描结果
+		/// </summary>
+		/*
+		public static void DrawResult(Mat dst, CaliperResult result, Scalar lineColor = null, Scalar circleColor = null)
+		{
+			lineColor ??= new Scalar(0, 200, 255);
+			circleColor ??= new Scalar(0, 255, 0);
+
+			var center = new Point((int)Math.Round(result.Center.X),
+								   (int)Math.Round(result.Center.Y));
+
+			// 绘制拟合圆
+			Cv2.Circle(dst, center, (int)Math.Round(result.Radius), circleColor, 2);
+
+			// 绘制圆心
+			Cv2.Circle(dst, center, 2, new Scalar(0, 0, 255), -1);
+
+			// 绘制有效边缘点
+			foreach (var p in result.EdgePoints)
+			{
+				var pt = new Point((int)Math.Round(p.X), (int)Math.Round(p.Y));
+				Cv2.Circle(dst, pt, 1, lineColor, 1);
+			}
+		}
+		*/	
+}
+
     private int DetectPupil(Mat src)
     {
         double pupilPx = 0;

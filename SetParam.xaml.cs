@@ -19,8 +19,8 @@ namespace CameraApp
         private int _minDist = 300;
         private int _Param1 = 300;
         private float _Param2 = 0.8f;
-        private int _minRadius = 4;
-        private int _maxRadius = 40;
+        private int _minRadius = 2;
+        private int _maxRadius = 30;
          
 
         public SetParam()
@@ -86,7 +86,6 @@ namespace CameraApp
             }
         }
        
-  
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<ParaChange>? ParaRedraw;
 

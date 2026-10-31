@@ -43,7 +43,7 @@
         <!-- 参数 4：数值参数（用 Slider 避免输入非法字符，示例用 int） -->
         <Label Grid.Row="3" Grid.Column="0" Content="高阈值" VerticalAlignment="Center"/>
         <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
-            <Slider Value="{Binding Param1}" Minimum="30" Maximum="300" TickFrequency="5" IsSnapToTickEnabled="True" Width="180"/>
+            <Slider Value="{Binding Param1}" Minimum="30" Maximum="150" TickFrequency="5" IsSnapToTickEnabled="True" Width="180"/>
             <TextBlock Text="{Binding Param1}" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="Bold"/>
         </StackPanel>
         <!-- 参数 5：数值参数（用 Slider 避免输入非法字符，示例用 int） -->
